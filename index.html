@@ -150,17 +150,67 @@
         </header>
 
         <!-- Live Counter -->
-        <div class="bg-gradient-to-r from-red-500 to-red-600 text-white py-4 pt-4 shadow-lg sticky top-0 md:fixed md:top-[5.7rem] md:left-0 md:right-0 z-40">
-            <div class="container mx-auto px-4 text-center">
-                <p class="text-xs text-red-100 mb-1">{{ sessionTime }}</p>
-                <div class="text-3xl font-bold" :key="liveCounterKey">
-                    {{ formatCurrency(liveExpense) }}
+        <div class="bg-white shadow-lg sticky top-0 md:fixed md:top-[5.7rem] md:left-0 md:right-0 z-40">
+            <div class="container mx-auto px-4 py-4">
+                <!-- Split Bar Container -->
+                <div class="h-20 rounded-lg overflow-hidden border-2 border-gray-200 relative">
+                    <!-- Expense Side (Left) -->
+                    <div class="absolute left-0 top-0 h-full flex items-center justify-center bg-gradient-to-r from-red-500 to-red-600 text-white"
+                         :style="{ 
+                             width: totalIncome > 0 ? 
+                                 Math.max(25, Math.min(75, (totalMonthlyExpense / (totalMonthlyExpense + totalIncome) * 100))) + '%' : 
+                                 '100%' 
+                         }">
+                        <div class="text-center">
+                            <div class="text-xs opacity-90 mb-1">Toplam Gider <br class="md:hidden">({{ sessionTime }})</div>
+                            <div class="text-lg font-bold" :key="'expense-' + liveCounterKey">
+                                {{ formatCurrency(liveExpense) }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Income Side (Right) -->
+                    <div v-if="totalIncome > 0" 
+                         class="absolute right-0 top-0 h-full flex items-center justify-center bg-gradient-to-r from-green-500 to-green-600 text-white"
+                         :style="{ 
+                             width: Math.max(25, Math.min(75, (totalIncome / (totalMonthlyExpense + totalIncome) * 100))) + '%' 
+                         }">
+                        <div class="text-center">
+                            <div class="text-xs opacity-90 mb-1">Toplam Gelir <br class="md:hidden">({{ sessionTime }})</div>
+                            <div class="text-lg font-bold" :key="'income-' + liveCounterKey">
+                                {{ formatCurrency(liveIncome) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Income Input Section -->
+        <div class="bg-white border-b border-gray-200 py-4 sticky top-0 md:fixed md:top-[13.2rem] md:left-0 md:right-0 z-30">
+            <div class="container mx-auto px-4">
+                <div class="max-w-md mx-auto">
+                    <label class="block text-sm font-medium text-gray-700 mb-2 text-center">
+                        💰 Toplam Gelir (Aylık)
+                    </label>
+                    <div class="relative">
+                        <input 
+                            type="text" 
+                            :value="formatInput(totalIncome)"
+                            inputmode="numeric"
+                            @input="onIncomeInput($event.target.value)"
+                            @focus="$event.target.select()"
+                            placeholder="0"
+                            class="w-full text-center border-2 border-gray-300 rounded-lg px-3 py-3 text-lg font-medium focus:outline-none focus:border-green-500 caret-transparent pr-12 income-input"
+                        >
+                        <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm font-medium">₺</span>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Spacer for desktop fixed header -->
-        <div class="hidden md:block h-[5.7rem]"></div>
+        <div class="hidden md:block h-[16.7rem]"></div>
 
         <div class="container mx-auto px-0 lg:px-4 py-4 md:pt-24 md:pb-12 flex-grow">
 

@@ -6,6 +6,8 @@ createApp({
             sessionStartTime: new Date(),
             sessionTime: '0 saat 0 dakika 0 saniye',
             liveExpense: 0,
+            liveIncome: 0,
+            totalIncome: 0,
             liveCounterKey: 0,
             intervalId: null,
             liveExpenseIntervalId: null,
@@ -183,6 +185,14 @@ createApp({
             this.saveData();
         },
 
+        // Income input handler
+        onIncomeInput(rawValue) {
+            const parsed = this.parseAmountFromInput(rawValue);
+            this.totalIncome = parsed;
+            this.calculateLiveExpense();
+            this.saveData();
+        },
+
         // Format currency to Turkish Lira with kuruş
         formatCurrency(amount) {
             return new Intl.NumberFormat('tr-TR', {
@@ -220,7 +230,7 @@ createApp({
             const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
             
             // Smart time formatting - only show non-zero values
-            let timeString = "Son ";
+            let timeString = "";
             let parts = [];
             
             if (hours > 0) {
@@ -242,7 +252,7 @@ createApp({
                 timeString += parts.slice(0, -1).join(", ") + ", " + parts[parts.length - 1];
             }
             
-            this.sessionTime = timeString + "de cebinizden çıkan para";
+            this.sessionTime = timeString;
         },
         
         // Calculate live expense based on session time
@@ -259,6 +269,15 @@ createApp({
             
             // Round to 2 decimal places for kuruş precision
             this.liveExpense = Math.round(this.liveExpense * 100) / 100;
+            
+            // Calculate live income if total income is set
+            if (this.totalIncome > 0) {
+                const monthlyIncomePerSecond = this.totalIncome / (30 * 24 * 60 * 60); // Monthly income per second
+                this.liveIncome = monthlyIncomePerSecond * sessionSeconds;
+                this.liveIncome = Math.round(this.liveIncome * 100) / 100;
+            } else {
+                this.liveIncome = 0;
+            }
         },
         
         // Update expense amount
@@ -383,6 +402,9 @@ createApp({
                 // Reset counter
                 this.nextCustomId = 1;
                 
+                // Reset income
+                this.totalIncome = 0;
+                
                 this.saveData();
             }
         },
@@ -396,7 +418,8 @@ createApp({
                 customDaily: this.customDaily,
                 customMonthly: this.customMonthly,
                 customYearly: this.customYearly,
-                nextCustomId: this.nextCustomId
+                nextCustomId: this.nextCustomId,
+                totalIncome: this.totalIncome
             };
             localStorage.setItem('gidermetre_data', JSON.stringify(data));
         },
@@ -452,6 +475,11 @@ createApp({
                     // Load counter
                     if (data.nextCustomId) {
                         this.nextCustomId = data.nextCustomId;
+                    }
+                    
+                    // Load total income
+                    if (data.totalIncome) {
+                        this.totalIncome = data.totalIncome;
                     }
                 } catch (error) {
                     console.error('Error loading saved data:', error);

@@ -37,6 +37,10 @@
     cursor: crosshair;
 }
 
+.income-input {
+    cursor: crosshair;
+}
+
 /* Hide number input arrows */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
